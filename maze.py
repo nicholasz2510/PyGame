@@ -15,21 +15,33 @@ pygame.display.set_caption('Maze')
 
 maze1 = pygame.image.load('maze1.png')
 
-level_1_walls = [[[244, 176], [567, 232]], [[0, 0], [800, 30]], [[770, 0], [800, 600]], [[0, 570], [800, 600]],
-                 [[0, 0], [30, 600]]]
+list_of_barriers = [[[[244, 176], [567, 232]], [[0, 0], [800, 30]], [[766, 0], [800, 600]], [[0, 570], [800, 600]],
+                 [[0, 0], [30, 600]]], ]
+
+list_of_portals = [[[, ], [, ]], ]
 
 pygame.display.update()
 
-
-def maze_walls(barriers, rect_x, rect_y):
+# Return False when touching barrier, return True when not touching barrier
+def can_move(barriers, rect_x, rect_y):
     for rect in barriers:
         top_left_point = rect[0]
         bottom_right_point = rect[1]
-        if rect_x >= top_left_point[0] and rect_x <= bottom_right_point[0] and rect_y >= top_left_point[1] and rect_y <= \
-                bottom_right_point[1]:
+        if rect_x > top_left_point[0] and rect_x < bottom_right_point[0] and rect_y > top_left_point[1] and rect_y < bottom_right_point[1]:
             return False
-        else:
+    return True
+
+
+def portal(points, rect_x, rect_y):
+    for portal in points:
+        top_left_point = portal[0]
+        bottom_right_point = portal[1]
+        if rect_x > top_left_point[0] and rect_x < bottom_right_point[0] and rect_y > top_left_point[1] and rect_y < bottom_right_point[1]:
             return True
+    return False
+
+def next_level():
+
 
 
 def gameLoop():
@@ -42,18 +54,22 @@ def gameLoop():
     rect_width = 5
     rect_height = 5
 
+    speed = 1
+
     move_left = False
     move_right = False
     move_up = False
     move_down = False
 
+    walls = list_of_barriers[0]
+    portal =
+
     gameDisplay.fill(white)
     gameDisplay.blit(maze1, (0, 0))
 
-    walls = level_1_walls
-
     while not gameExit:
-        acceleration += .001
+        if (speed * acceleration) < 5:
+            acceleration += .001
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 gameExit = True
@@ -88,29 +104,31 @@ def gameLoop():
                     move_right = False
                     move_up = False
 
-        speed = 1
         if move_left:
-            if maze_walls(walls, rect_x, rect_y):
+            if can_move(walls, rect_x, rect_y):
                 rect_x -= (speed * acceleration)
             else:
                 rect_x += 1
         elif move_right:
-            if maze_walls(walls, rect_x, rect_y):
+            if can_move(walls, rect_x, rect_y):
                 rect_x += (speed * acceleration)
             else:
                 rect_x -= 1
         elif move_up:
-            if maze_walls(walls, rect_x, rect_y):
+            if can_move(walls, rect_x, rect_y):
                 rect_y -= (speed * acceleration)
             else:
                 rect_y += 1
         elif move_down:
-            if maze_walls(walls, rect_x, rect_y):
+            if can_move(walls, rect_x, rect_y):
                 rect_y += (speed * acceleration)
             else:
                 rect_y -= 1
 
-        if maze_walls(walls, rect_x, rect_y):
+        if portal(portals, rect_x, rect_y):
+            next_level()
+
+        if can_move(walls, rect_x, rect_y):
             pygame.draw.rect(gameDisplay,
                              (acceleration * 195 % 255, acceleration * 195 % 255, acceleration * 195 % 255),
                              [rect_x, rect_y, rect_width, rect_height])
